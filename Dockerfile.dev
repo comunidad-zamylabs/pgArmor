@@ -1,0 +1,6 @@
+FROM node:24-alpine
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+RUN corepack enable && corepack prepare pnpm@11.24.0 --activate
+WORKDIR /app
+# No build-time install; compose `command:` runs install + dev.
+CMD ["sh", "-c", "pnpm install --frozen-lockfile --store-dir /app/.pnpm-store"]

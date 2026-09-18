@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.github
+openspec
+.atl
+.env
+.env.*
+!.env.example

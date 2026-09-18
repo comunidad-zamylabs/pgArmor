@@ -195,3 +195,47 @@ Un PR debe incluir:
 - documentación si cambia comportamiento o arquitectura.
 
 Mantén los PR pequeños y enfocados. Evita mezclar refactors generales con una funcionalidad no relacionada.
+
+## Desarrollo con Docker
+
+Entorno de desarrollo reproducible con Docker Compose: levanta el frontend (`apps/web`, Vite) y el backend (`apps/server`, Express con `tsx watch`) en dos contenedores independientes, con recarga en caliente y sin base de datos. Es solo para desarrollo.
+
+### Inicio rápido
+
+1. Instala Docker con el plugin Compose.
+2. Desde la raíz del repositorio:
+
+```bash
+docker compose up
+```
+
+El primer arranque descarga la imagen base e instala las dependencias con pnpm. Los arranques siguientes reutilizan el almacén de paquetes `pnpm-store` y son más rápidos.
+
+Verifica que el stack responda:
+
+| Comando | Resultado esperado |
+|---|---|
+| `curl http://localhost:3000/health` | `{"status":"ok"}` |
+| `curl http://localhost:5173/api/health` | `{"status":"ok"}` |
+
+El proxy de Vite expone `/api` hacia el backend (`server:3000`), por lo que el frontend puede llamar al backend desde el mismo origen sin CORS.
+
+### Operaciones comunes
+
+| Operación | Comando |
+|---|---|
+| Iniciar | `docker compose up` |
+| Detener | `Ctrl+C`, o `docker compose down` |
+| Reconstruir la imagen | `docker compose up --build` |
+| Agregar una dependencia | `pnpm --filter web add <paquete>` o `pnpm --filter server add <paquete>` |
+| Limpiar volúmenes | `docker compose down -v` |
+
+Los cambios en el código se reflejan sin reconstruir la imagen gracias al bind mount `.:/app`. Después de agregar o actualizar dependencias, reinicia con `--build` y, si los volúmenes quedaron desactualizados, usa `docker compose down -v`.
+
+### Solución de problemas
+
+| Problema | Solución |
+|---|---|
+| La recarga en caliente no detecta cambios (Docker Desktop en macOS/Windows) | El sistema de archivos no emite eventos nativos; habilita el polling con `CHOKIDAR_USEPOLLING=true` (o `usePolling: true` en `server.watch` de `vite.config.ts`). |
+| `corepack` no disponible (Node 25+ lo elimina) | Instala pnpm globalmente: `npm i -g pnpm@11.24.0` |
+| Dependencias o volúmenes desactualizados | Ejecuta `docker compose down -v` y vuelve a iniciar con `docker compose up` |

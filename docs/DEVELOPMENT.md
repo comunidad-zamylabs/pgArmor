@@ -236,6 +236,6 @@ Los cambios en el código se reflejan sin reconstruir la imagen gracias al bind 
 
 | Problema | Solución |
 |---|---|
-| La recarga en caliente no detecta cambios (Docker Desktop en macOS/Windows) | El sistema de archivos no emite eventos nativos; habilita el polling con `CHOKIDAR_USEPOLLING=true` (o `usePolling: true` en `server.watch` de `vite.config.ts`). |
+| La recarga en caliente no detecta cambios (Docker Desktop en macOS/Windows) | El polling está activado por defecto (`CHOKIDAR_USEPOLLING=true`) precisamente porque Docker Desktop no emite eventos nativos de archivos a través de los bind mounts. Si usás Linux nativo y querés menor uso de CPU, poné `CHOKIDAR_USEPOLLING=false` en `.env`. |
 | `corepack` no disponible (Node 25+ lo elimina) | Instala pnpm globalmente: `npm i -g pnpm@11.24.0` |
 | Dependencias o volúmenes desactualizados | Ejecuta `docker compose down -v` y vuelve a iniciar con `docker compose up` |

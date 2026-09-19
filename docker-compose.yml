@@ -6,6 +6,7 @@ services:
       - "5173:5173"
     environment:
       VITE_API_URL: "${VITE_API_URL:-http://localhost:3000}"
+      CHOKIDAR_USEPOLLING: "${CHOKIDAR_USEPOLLING:-true}"
     volumes:
       - .:/app
       - /app/node_modules
@@ -25,6 +26,7 @@ services:
       - "3000:3000"
     environment:
       PORT: "${PORT:-3000}"
+      CHOKIDAR_USEPOLLING: "${CHOKIDAR_USEPOLLING:-true}"
     volumes:
       - .:/app
       - /app/node_modules

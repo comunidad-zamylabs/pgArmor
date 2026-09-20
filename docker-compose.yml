@@ -1,0 +1,44 @@
+services:
+  web:
+    build: { context: ., dockerfile: Dockerfile.dev }
+    command: sh -c "pnpm install --frozen-lockfile --store-dir /app/.pnpm-store && pnpm --filter web dev"
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: "${VITE_API_URL:-http://localhost:3000}"
+      CHOKIDAR_USEPOLLING: "${CHOKIDAR_USEPOLLING:-true}"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/web/node_modules
+      - /app/apps/server/node_modules
+      - pnpm-store:/app/.pnpm-store
+    restart: unless-stopped
+    depends_on:
+      - server
+    networks:
+      - pgarmor-dev
+
+  server:
+    build: { context: ., dockerfile: Dockerfile.dev }
+    command: sh -c "pnpm install --frozen-lockfile --store-dir /app/.pnpm-store && pnpm --filter server dev"
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "${PORT:-3000}"
+      CHOKIDAR_USEPOLLING: "${CHOKIDAR_USEPOLLING:-true}"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/web/node_modules
+      - /app/apps/server/node_modules
+      - pnpm-store:/app/.pnpm-store
+    restart: unless-stopped
+    networks:
+      - pgarmor-dev
+
+volumes:
+  pnpm-store:
+
+networks:
+  pgarmor-dev:
